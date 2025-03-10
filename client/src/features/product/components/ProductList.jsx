@@ -131,22 +131,34 @@ export default function ProductList() {
   const products = useSelector(selectAllProducts);
 
   const [filter, setFilter] = useState({});
+  const [sort, setSort] = useState({});
 
-  const handleFilter = (section, option) => {
-    const newFilter = { ...filter, [section.id]: option.value };
+  const handleFilter = (e, section, option) => {
+    const newFilter = { ...filter };
+    if (e.target.checked) {
+      if (newFilter[section.id]) {
+        newFilter[section.id].push(option.value);
+      } else {
+        newFilter[section.id] = [option.value];
+      }
+    } else {
+      const index = newFilter[section.id].findIndex(
+        (el) => el === option.value
+      );
+      newFilter[section.id].splice(index, 1);
+    }
+    console.log({ newFilter });
     setFilter(newFilter);
-    dispatch(fetchProductsByFiltersAsync(newFilter));
   };
   const handleSort = (option) => {
-    const newFilter = { ...filter, _sort: option.sort, _order: option.order };
-    console.log(newFilter);
-    setFilter(newFilter);
-    dispatch(fetchProductsByFiltersAsync(newFilter));
+    const sort = { ...filter, _sort: option.sort, _order: option.order };
+    console.log({ sort });
+    setFilter(sort);
   };
 
   useEffect(() => {
-    dispatch(fetchAllProductsAsync());
-  }, [dispatch]);
+    dispatch(fetchProductsByFiltersAsync({ filter, sort }));
+  }, [dispatch, filter, sort]);
 
   return (
     <div className="bg-white">
@@ -308,7 +320,7 @@ function MobileFilter({
                               id={`filter-mobile-${section.id}-${optionIdx}`}
                               name={`${section.id}[]`}
                               type="checkbox"
-                              onChange={() => handleFilter(section, option)}
+                              onChange={(e) => handleFilter(e, section, option)}
                               className="col-start-1 row-start-1 appearance-none rounded border border-gray-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
                             />
                             <svg
@@ -390,7 +402,7 @@ function DesktopFilter({ handleFilter }) {
                         id={`filter-${section.id}-${optionIdx}`}
                         name={`${section.id}[]`}
                         type="checkbox"
-                        onChange={() => handleFilter(section, option)}
+                        onChange={(e) => handleFilter(e, section, option)}
                         className="col-start-1 row-start-1 appearance-none rounded border border-gray-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
                       />
                       <svg
